@@ -1,0 +1,132 @@
+/* ====== GLOBALS ====== */
+
+body {
+    background: #0f172a;            /* Dark Navy */
+    color: #e2e8f0;                 /* Soft Text */
+    margin: 0;
+    padding: 0;
+    font-family: system-ui, sans-serif;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 750px;
+    width: 90%;
+    margin-top: 40px;
+}
+
+/* ====== QUIZ CARD ====== */
+
+.card {
+    background: #1e293b;            /* Slightly lighter navy */
+    padding: 30px;
+    border-radius: 14px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.45);
+    transition: transform 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+}
+
+h1, h2 {
+    text-align: center;
+    margin-top: 0;
+}
+
+/* ====== IMAGES ====== */
+
+.card img {
+    max-width: 100%;
+    border-radius: 10px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+}
+
+/* ====== BUTTONS ====== */
+
+.buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+button {
+    flex: 1;
+    padding: 12px 18px;
+    border-radius: 10px;
+    border: none;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+/* Primary = blau */
+button.primary {
+    background: #3b82f6;
+    color: white;
+}
+
+button.primary:hover {
+    background: #2563eb;
+    transform: scale(1.03);
+}
+
+/* Secondary = grau */
+button.secondary {
+    background: #64748b;
+    color: white;
+}
+
+button.secondary:hover {
+    background: #475569;
+    transform: scale(1.03);
+}
+
+/* Disabled state */
+button:disabled {
+    opacity: 0.4;
+    transform: none !important;
+    cursor: default;
+}
+
+/* ====== RESULT BOX ====== */
+
+.result {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 10px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.result.correct {
+    background: #065f46;   /* Green */
+    color: #d1fae5;
+}
+
+.result.wrong {
+    background: #7f1d1d;   /* Red */
+    color: #fee2e2;
+}
+
+.explanation {
+    margin-top: 10px;
+    font-size: 0.95rem;
+    color: #cbd5e1;
+}
+
+/* ====== FOOTER ====== */
+
+.footer {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #94a3b8;
+}
+

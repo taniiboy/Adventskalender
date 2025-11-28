@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Verschwörungs-Quiz</title>
+
+    <!-- CSS einbinden -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="card" id="quiz-card">
+
+        <div id="question-counter" class="question-counter"></div>
+
+        <h2 id="quiz-title"></h2>
+
+        <img id="quiz-image" src="" alt="Bild zum Rätsel">
+
+        <p id="quiz-text"></p>
+
+        <div class="buttons">
+            <button id="btn-real" class="primary">Echte Verschwörungstheorie</button>
+            <button id="btn-fake" class="secondary">Frei erfunden</button>
+        </div>
+
+        <div id="result-box" class="result" style="display:none;"></div>
+        <div id="explanation" class="explanation" style="display:none;"></div>
+
+        <div class="buttons" style="margin-top:16px; justify-content: flex-end;">
+            <button id="btn-next" class="secondary" style="display:none; flex:0 0 auto;">
+                Nächste Frage ➜
+            </button>
+        </div>
+    </div>
+
+    <div class="footer">
+        Demo-Version – komplett offline nutzbar (HTML + CSS + JS).
+    </div>
+</div>
+
+<!-- ============================= -->
+<!--          JAVASCRIPT          -->
+<!-- ============================= -->
+
+<script>
+    /* ============================
+       QUIZ-DATEN (BEISPIELE)
+       ============================ */
+
+    const QUIZZES = [
+        {
+            title: "Tag 1 - Das Auge der Sahara ist Atlantis",
+            text: "Eine Theorie behauptet, die Richat-Struktur sei die versunkene Stadt Atlantis.",
+            image: "images/eye_of_sahara.jpg",
+            isConspiracy: true,
+            explanation: "Diese Theorie behauptet, die kreisförmige Richat-Struktur in Mauretanien sei die genaue Beschreibung von Platons Atlantis. Wissenschaftlich gilt die Richat-Struktur als <strong>natürliche geologische Formation</strong>, die durch Erosion entstanden ist."
+        
+        },
+        {
+            title: "Tag 2 - Aldi-Filialen bilden ein geheimes Runensymbol",
+            text: "Manche behaupten, Aldi hätte seine Filialen so platziert, dass sie ein uraltes Schutzsymbol formen.",
+            image: "images/aldi_rune.jpg",
+            isConspiracy: false,
+            explanation: "Diese Theorie ist frei erfunden. "
+        },
+        {
+            title: "Tag 3 - Der Mond ist ein hohler Alien-Satellit",
+            text: "Manche glauben, der Mond sei innen hohl und absichtlich platziert worden.",
+            image: "images/hollow_moon.jpg",
+            isConspiracy: true,
+            explanation: "Eine echte Verschwörungstheorie, die seit Jahrzehnten kursiert."
+        },
+        {
+            title: "Tag 4 - Nudeln sind eine außerirdische Kommunikationstechnologie",
+            text: "Es wird behauptet, Spaghetti dienen als Antennen für kosmische Botschaften.",
+            image: "images/spaghetti_alien.jpg",
+            isConspiracy: false,
+            explanation: "Komplett ausgedacht – aber irgendwie lustig."
+        },
+        {
+            title: "Tag 5 - Wünschelruten finden Wasser",
+            text: "Metallstäbe finden angeblich Wasseradern",
+            image: "images/spaghetti_alien.jpg",
+            isConspiracy: false,
+            explanation: "Komplett ausgedacht – aber irgendwie lustig."
+        },
+        {
+            title: "Tag 6 - Feuer ist lebendig",
+            text: "Feuer ist eine lebendige Lebensform",
+            image: "images/6.jpg",
+            isConspiracy: true,
+            explanation: "Da Feuer Sauerstoff 'atmet', Brennstoff 'frisst' und sich durch Ausbreitung vermehrt wie bei einer Fortpflanzung sind einge Menschen der Meinung, dass Feuer tatsächlich ein Lebewesen ist"
+        },
+        {
+            title: "Tag 7 - Die Erde ist zwar eine Kugel... aber von Eiskugel",
+            text: "Unsere Kontinente sind von einer Eiswand umgeben und dahinter befinden sich weitere Ozeane und Kontinente",
+            image: "images/7.jpg",
+            isConspiracy: true,
+            explanation: "Komplett ausgedacht – aber irgendwie lustig."
+        },
+        {
+            title: "Tag 8 - Have you seen this man in your dream",
+            text: "Metallstäbe finden angeblich Wasseradern",
+            image: "images/8.jpg",
+            isConspiracy: false,
+            explanation: "Komplett ausgedacht – aber irgendwie lustig."
+        },
+        {
+            title: "Tag 9 - Wünschelruten finden Wasser",
+            text: "Metallstäbe finden angeblich Wasseradern",
+            image: "images/spaghetti_alien.jpg",
+            isConspiracy: false,
+            explanation: "Komplett ausgedacht – aber irgendwie lustig."
+        },
+        {
+            title: "Tag 10 - Wünschelruten finden Wasser",
+            text: "Metallstäbe finden angeblich Wasseradern",
+            image: "images/spaghetti_alien.jpg",
+            isConspiracy: false,
+            explanation: "Komplett ausgedacht – aber irgendwie lustig."
+        },{
+            title: "Tag 11- Wünschelruten finden Wasser",
+            text: "Metallstäbe finden angeblich Wasseradern",
+            image: "images/spaghetti_alien.jpg",
+            isConspiracy: false,
+            explanation: "Komplett ausgedacht – aber irgendwie lustig."
+        },
+        {
+            title: "Tag 12 - Wünschelruten finden Wasser",
+            text: "Metallstäbe finden angeblich Wasseradern",
+            image: "images/spaghetti_alien.jpg",
+            isConspiracy: false,
+            explanation: "Komplett ausgedacht – aber irgendwie lustig."
+        },
+        {
+            title: "Tag 13 - Wünschelruten finden Wasser",
+            text: "Metallstäbe finden angeblich Wasseradern",
+            image: "images/spaghetti_alien.jpg",
+            isConspiracy: false,
+            explanation: "Komplett ausgedacht – aber irgendwie lustig."
+        },
+        {
+            title: "Tag 14 - Wünschelruten finden Wasser",
+            text: "Metallstäbe finden angeblich Wasseradern",
+            image: "images/spaghetti_alien.jpg",
+            isConspiracy: false,
+            explanation: "Komplett ausgedacht – aber irgendwie lustig."
+        },
+        {
+            title: "Tag 15- Wünschelruten finden Wasser",
+            text: "Metallstäbe finden angeblich Wasseradern",
+            image: "images/spaghetti_alien.jpg",
+            isConspiracy: false,
+            explanation: "Komplett ausgedacht – aber irgendwie lustig."
+        },
+        {
+            title: "Tag 16 - Wünschelruten finden Wasser",
+            text: "Metallstäbe finden angeblich Wasseradern",
+            image: "images/spaghetti_alien.jpg",
+            isConspiracy: false,
+            explanation: "Komplett ausgedacht – aber irgendwie lustig."
+        },
+        {
+            title: "Tag 17- Wünschelruten finden Wasser",
+            text: "Metallstäbe finden angeblich Wasseradern",
+            image: "images/spaghetti_alien.jpg",
+            isConspiracy: false,
+            explanation: "Komplett ausgedacht – aber irgendwie lustig."
+        },
+        {
+            title: "Tag 18 - Wünschelruten finden Wasser",
+            text: "Metallstäbe finden angeblich Wasseradern",
+            image: "images/spaghetti_alien.jpg",
+            isConspiracy: false,
+            explanation: "Komplett ausgedacht – aber irgendwie lustig."
+        },
+        {
+            title: "Tag 19 - Wünschelruten finden Wasser",
+            text: "Metallstäbe finden angeblich Wasseradern",
+            image: "images/spaghetti_alien.jpg",
+            isConspiracy: false,
+            explanation: "Komplett ausgedacht – aber irgendwie lustig."
+        },
+        {
+            title: "Tag 20 - Wünschelruten finden Wasser",
+            text: "Metallstäbe finden angeblich Wasseradern",
+            image: "images/spaghetti_alien.jpg",
+            isConspiracy: false,
+            explanation: "Komplett ausgedacht – aber irgendwie lustig."
+        },
+        {
+            title: "Tag 21 - Wünschelruten finden Wasser",
+            text: "Metallstäbe finden angeblich Wasseradern",
+            image: "images/spaghetti_alien.jpg",
+            isConspiracy: false,
+            explanation: "Komplett ausgedacht – aber irgendwie lustig."
+        },
+        {
+            title: "Tag 22- Wünschelruten finden Wasser",
+            text: "Metallstäbe finden angeblich Wasseradern",
+            image: "images/spaghetti_alien.jpg",
+            isConspiracy: false,
+            explanation: "Komplett ausgedacht – aber irgendwie lustig."
+        },
+        {
+            title: "Tag 23 - Wünschelruten finden Wasser",
+            text: "Metallstäbe finden angeblich Wasseradern",
+            image: "images/spaghetti_alien.jpg",
+            isConspiracy: false,
+            explanation: "Komplett ausgedacht – aber irgendwie lustig."
+        },
+        {
+            title: "Tag 24 - Wünschelruten finden Wasser",
+            text: "Metallstäbe finden angeblich Wasseradern",
+            image: "images/spaghetti_alien.jpg",
+            isConspiracy: false,
+            explanation: "Komplett ausgedacht – aber irgendwie lustig."
+        },
+    ];
+
+    /* ============================
+       QUIZ LOGIK
+       ============================ */
+
+    let currentIndex = 0;
+    let answered = false;
+
+    const titleEl = document.getElementById("quiz-title");
+    const textEl = document.getElementById("quiz-text");
+    const imageEl = document.getElementById("quiz-image");
+    const resultBox = document.getElementById("result-box");
+    const explanationEl = document.getElementById("explanation");
+    const btnReal = document.getElementById("btn-real");
+    const btnFake = document.getElementById("btn-fake");
+    const btnNext = document.getElementById("btn-next");
+    const counterEl = document.getElementById("question-counter");
+
+    function loadQuestion(index) {
+        const quiz = QUIZZES[index];
+        titleEl.textContent = quiz.title;
+        textEl.textContent = quiz.text;
+        imageEl.src = quiz.image;
+        imageEl.alt = quiz.title;
+        counterEl.textContent = `Tag ${index + 1}`;
+
+        resultBox.style.display = "none";
+        explanationEl.style.display = "none";
+        btnNext.style.display = "none";
+
+        answered = false;
+        btnReal.disabled = false;
+        btnFake.disabled = false;
+    }
+
+    function handleAnswer(isRealGuess) {
+        if (answered) return;
+        answered = true;
+
+        const quiz = QUIZZES[currentIndex];
+        const correct = (isRealGuess === quiz.isConspiracy);
+
+        resultBox.style.display = "block";
+        explanationEl.style.display = "block";
+        btnNext.style.display = "inline-block";
+
+        if (correct) {
+            resultBox.className = "result correct";
+            resultBox.textContent = "Richtig! 🎉";
+        } else {
+            resultBox.className = "result wrong";
+            resultBox.textContent = "Falsch! 😅";
+        }
+
+        explanationEl.textContent = quiz.explanation;
+
+        btnReal.disabled = true;
+        btnFake.disabled = true;
+
+        // Letzte Frage → Buttontext ändern
+        if (currentIndex === QUIZZES.length - 1) {
+            btnNext.textContent = "Zur ersten Frage ↺";
+        } else {
+            btnNext.textContent = "Nächste Frage ➜";
+        }
+    }
+
+    btnReal.addEventListener("click", () => handleAnswer(true));
+    btnFake.addEventListener("click", () => handleAnswer(false));
+
+    btnNext.addEventListener("click", () => {
+        currentIndex = (currentIndex + 1) % QUIZZES.length;
+        loadQuestion(currentIndex);
+    });
+
+    // Start
+    loadQuestion(currentIndex);
+</script>
+
+</body>
+</html>
