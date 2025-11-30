@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Weihnachtstraditions-Quiz</title>
+
+    <!-- CSS einbinden -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <video autoplay muted loop id="bg-video">
+        <source src="snowfall.mp4" type="video/mp4">
+    </video>
+
+    <div class="container">
+
+        <!-- STARTSEITE -->
+        <div class="card" id="start-card">
+            <h2>Weihnachtstraditions-Quiz 🎄</h2>
+            <img id="start-image" src="images/startbild.jpg" alt="Startbild"
+                style="max-width:300px; margin: 0 auto 16px auto; display:block; border-radius:12px;">
+
+            <p>
+                Willkommen zu deinem diesjährigen Adventskalender! Jeden Tag siehst du eine ungewöhnliche oder witzige
+                Tradition aus aller Welt.
+                Jedoch sind nicht alle echte Traditionen sondern manche auch frei erfunden. Du musst jeden Tag
+                entscheiden, ob du die Tradition für echt
+                oder erfunden hältst. Viel Spaß dabei
+            </p>
+
+            <ul>
+                <li>Text + Bild anschauen</li>
+                <li>„Echt“ oder „Frei erfunden“ wählen</li>
+                <li>Sofort Rückmeldung + Erklärung sehen</li>
+                <li>Mit „Nächster Tag“ zur nächsten Frage</li>
+            </ul>
+
+            <div class="buttons" style="justify-content:center; margin-top:16px;">
+                <button id="btn-start" class="primary">Quiz starten ➜</button>
+            </div>
+        </div>
+
+        <!-- QUIZ (anfangs unsichtbar) -->
+        <div class="card" id="quiz-card" style="display:none;">
+
+            <div id="question-counter" class="question-counter"></div>
+
+            <h2 id="quiz-title"></h2>
+
+            <img id="quiz-image" src="" alt="Bild zum Rätsel" style="display:none;">
+
+            <p id="quiz-text"></p>
+
+            <div class="buttons">
+                <button id="btn-real" class="primary">Echte Weihnachtstradition</button>
+                <button id="btn-fake" class="secondary">Frei erfunden</button>
+            </div>
+
+            <div id="result-box" class="result" style="display:none;"></div>
+            <div id="explanation" class="explanation" style="display:none;"></div>
+
+            <div class="buttons" style="margin-top:16px; justify-content: flex-end;">
+                <button id="btn-next" class="secondary" style="display:none; flex:0 0 auto;">
+                    Nächste Frage ➜
+                </button>
+            </div>
+
+        </div>
+
+        <!-- ENDSEITE -->
+        <div class="card" id="end-card" style="display:none; text-align:center;">
+            <h2>Frohe Weihnachten! 🎄✨</h2>
+
+            <img src="images/froheweihnachten.jpg" alt="Frohe Weihnachten"
+                style="max-width:300px; margin:16px auto; display:block; border-radius:12px;">
+
+            <p>
+                Du hast alle 24 Weihnachtstraditionen geschafft!
+                Ich hoffe der Kalender hat dir gefallen. Ich wünsche dir und deiner Familie fröhliche Weihnachten 🎁
+            </p>
+
+            <p style="font-size:0.9rem; margin-top:16px; opacity:0.7;">
+                (Zum Neustart kannst du die Seite einfach aktualisieren.)
+            </p>
+        </div>
+
+
+
+
+       
+
+    <!-- ============================= -->
+    <!--          JAVASCRIPT          -->
+    <!-- ============================= -->
+
+    <script>
+        /* ============================
+           QUIZ-DATEN – BEISPIELE
+           Du kannst hier 24 Einträge anlegen.
+           isReal: true  -> echte Weihnachtstradition
+                   false -> frei erfunden
+           ============================ */
+
+        const QUIZZES = [
+            {
+                title: "Tag 1 – Norwegen",
+                text: "In Norwegen verstecken viele Familien am Weihnachtsabend ihre Besen, damit keine Hexen oder bösen Geister in der Nacht darauf herumfliegen",
+                image: "images/1.jpg",
+                isReal: true,
+                explanation: "Diese Tradition wird in Norwegen tatsächlich erzählt: In manchen Regionen werden Besen und Putzgeräte versteckt, weil man früher glaubte, Hexen könnten sie an Heiligabend stehlen und damit durch die Nacht fliegen"
+            },
+            {
+                title: "Tag 2 – Ungarn",
+                text: "In Ungarn stellt man am 24. Dezember eine kleine Holzfigur eines Hahns vor die Haustür, um Glück und Gesundheit im neuen Jahr zu sichern",
+                image: "images/2.jpg",
+                isReal: false,
+                explanation: "Diese Geschichte ist frei erfunden. Es gibt viele schöne ungarische Weihnachtstraditionen – aber der spezielle Glückshahn vor der Haustür gehört nicht dazu."
+            },
+            {
+                title: "Tag 3 – Japan",
+                text: "In Japan ist es an Weihnachten üblich, frittiertes Hühnchen von einer bekannten Fast-Food-Kette zu essen.",
+                image: "images/3.jpg",
+                isReal: true,
+                explanation: "Das stimmt wirklich: In Japan ist ein Weihnachtsessen mit frittiertem Hühnchen (z.B. von KFC) sehr beliebt, teilweise mit Vorbestellung Wochen im Voraus"
+            },
+            {
+                title: "Tag 4 – Mexiko",
+                text: "In Mexiko gibt es ein Fest, bei dem Figuren und Szenen aus geschnitzten Rettichen ausgestellt werden.",
+                image: "images/4.jpg",
+                isReal: true,
+                explanation: "Das ist die „Noche de los Rábanos“ (Nacht der Rettiche) in Oaxaca, die kurz vor Weihnachten stattfindet. Es werden aufwendig Figuren und Szenen aus Rettichen geschnitzt"
+            },
+            {
+                title: "Tag 5 – Niederlanden",
+                text: "In den Niederlanden zieht am zweiten Weihnachtstag ein als „Mandelmann“ verkleideter Mensch durch die Straßen und verteilt Marzipan.",
+                image: "images/5.jpg",
+                isReal: false,
+                explanation: "Die Figur des „Mandelmanns“ ist frei erfunden. In den Niederlanden sind allerdings Sinterklaas und seine Helfer sehr wichtige traditionelle Figuren."
+            },
+            {
+                title: "Tag 6 – Ukraine",
+                text: "In der Ukraine schmückt man den Weihnachtsbaum traditionell mit künstlichen Spinnen und Spinnennetzen als Glücksbringer",
+                image: "images/6.jpg",
+                isReal: true,
+                explanation: "Diese Tradition basiert auf einer alten Legende: Eine Spinne soll einer armen Familie geholfen haben, den Baum zu schmücken – daher gelten Spinnen und Netze dort als Glückssymbol zu Weihnachten"
+            },
+            {
+                title: "Tag 7 – Island",
+                text: "In Island heißt es, dass der Weihnachtskater Jólakötturinn diejenigen frisst, die zu Weihnachten keine neuen Kleidungsstücke tragen",
+                image: "images/7.jpg",
+                isReal: true,
+                explanation: "Der Weihnachtskater ist eine echte Figur der isländischen Folklore und soll Faulheit bestrafen"
+            },
+            {
+                title: "Tag 8 – Estland",
+                text: "In Estland öffnet man am 25. Dezember für genau eine Minute alle Fenster, um die 'alte Luft' des Jahres hinauszulassen",
+                image: "images/8.jpg",
+                isReal: false,
+                explanation: "Diese Tradition ist frei erfunden. Auch wenn Stoßlüften wichtig ist"
+            },
+            {
+                title: "Tag 9 – Finnland ",
+                text: "In Finnland wird am Weihnachtsmorgen traditionell Reisbrei gegessen, in dem eine Mandel versteckt ist. Wer sie findet, hat Glück oder darf sich etwas wünschen",
+                image: "images/9.jpg",
+                isReal: true,
+                explanation: "Der Brauch, eine ganze Mandel im warmen Reisbrei zu verstecken, ist in Finnland weit verbreitet"
+            },
+            {
+                title: "Tag 10 – Lettland",
+                text: "In Lettland wird ein kleines Holzstück ins Feuer geworfen, das angeblich jeden Wunsch erfüllt, der während des Brennens ausgesprochen wird",
+                image: "images/10.jpg",
+                isReal: false,
+                explanation: "Das Wunschholz existiert nicht – diese Tradition ist ausgedacht."
+            },
+            {
+                title: "Tag 11 – Griechenland",
+                text: "In Griechenland schmücken viele Familien statt eines Baums ein kleines beleuchtetes Boot",
+                image: "images/11.jpg",
+                isReal: true,
+                explanation: "Das 'Karavaki' ist eine echte Tradition in vielen Regionen, besonders auf Inseln"
+            },
+            {
+                title: "Tag 12 – Albanien",
+                text: "In Albanien werden nach Weihnachten alte Erinnerungsstücke an dem Baum befestigt und dieser aus dem Fenster geworfen als Symbol des 'Loslassens'",
+                image: "images/12.jpg",
+                isReal: false,
+                explanation: "Das Einzige was loslässt ist mein Kommilitone im Studium"
+            },
+            {
+                title: "Tag 13 – Paraguay",
+                text: "Am 1. Advent ritzt jedes Familienmitglied einen geheimen Wunsch als Symbol in eine Orange, trocknet sie und hängt sie an den Baum, und an Heiligabend wird geraten, welcher Wunsch zu wem gehört",
+                image: "images/13.jpg",
+                isReal: false,
+                explanation: "Den Gedanken finde ich zwar süß, aber leider ist er frei erfunden"
+            },
+            {
+                title: "Tag 14 – Taiwan",
+                text: "In Taiwan decken Menschen ihre Tattoos an Weihnachten ab aus Respekt gegenüber den Älteren und der Gemeinschaft",
+                image: "images/14.jpg",
+                isReal: false,
+                explanation: "Auch wenn es in manchen Ländern tatsächlich so ist, dass man seine Tattoos abdecken muss, ist dies keine Weihnachtstradition in Taiwan"
+            },
+            {
+                title: "Tag 15 – Bolivien",
+                text: "In Boliven werden traditionell Bohnen an Weihnachten gegessen. Der Brauch besagt, dass dadurch böse Energie den Körper durch die ausgeschiedenen Gase verlassen",
+                image: "images/15.jpg",
+                isReal: false,
+                explanation: "Hihi verarscht. Jedes Böhnchen gibt ein Tönchen, aber nicht hier"
+            },
+            {
+                title: "Tag 16 – Portugal",
+                text: "In Portugal bleibt beim Weihnachtsessen ein Stuhl für verstorbene Familienmitglieder frei",
+                image: "images/16.jpg",
+                isReal: true,
+                explanation: "Der freie Platz („Lugar para os ausentes“) ist Teil alter portugiesischer Traditionen"
+            },
+            {
+                title: "Tag 17 – USA",
+                text: "In den Vereinigten Staaten hat es sich eingebürgert, dass sich Hundefreunde am Adventsonntag für eine gemeinsame Runde treffen",
+                image: "images/17.jpg",
+                isReal: false,
+                explanation: "Natürlich ist diese Idee erfunden, auch wenn ich sie super toll finden würde"
+            },
+            {
+                title: "Tag 18 – Polen",
+                text: "In Polen legt man zu Weihnachten Heu unter die Tischdecke als Erinnerung an die Krippe Jesu",
+                image: "images/18.jpg",
+                isReal: true,
+                explanation: "Diese Tradition namens 'Sianko' ist weit verbreitet. Warum liegt hier Stroh?"
+            },
+            {
+                title: "Tag 19 – Ecuador",
+                text: "In Encuador bauen die Menschen gemeinsam eine Skulptur aus Müll um den Geist des Zusammenhalts zu feiern",
+                image: "images/19.jpg",
+                isReal: false,
+                explanation: "Auch wenn es ein sehr nachhaltiger Ansatz wäre, ist diese Tradition so nicht zu finden"
+            },
+            {
+                title: "Tag 20 – Tschechien",
+                text: "In Tschechien wirft man an Weihnachten einen Schuh über die Schulter. Zeigt die Schuhspitze zur Tür, wird man im nächsten Jahr heiraten.",
+                image: "images/20.jpg",
+                isReal: true,
+                explanation: "Der Schuhwurf ist eine echte tschechische Weihnachtswahrsagung."
+            },
+            {
+                title: "Tag 21 – Schweden",
+                text: "In Schweden schauen viele Familien jedes Jahr um 15 Uhr die Weihnachtssendung mit Donald Duck",
+                image: "images/21.jpg",
+                isReal: true,
+                explanation: "‚Kalle Anka‘ ist seit den 1960ern ein Weihnachtskult in Schweden. Wahrscheinlich sowas wie bei uns ‚Diner for One‘  an Silvester"
+            },
+            {
+                title: "Tag 22 – Kroatien",
+                text: "In Kroatien lässt man am 24. Dezember drei Kerzen komplett abbrennen: eine für Gesundheit, eine für Familie, eine für Wohlstand",
+                image: "images/22.jpg",
+                isReal: false,
+                explanation: "Kerzen sind zwar weihnachtlich aber in dem Kontext leider fehl am Platz"
+            },
+            {
+                title: "Tag 23 – Belgien",
+                text: "In Belgien backt jede Familie einen besonderen Kuchen für ihre Nachbarn, der dann an Heiligabend gemeinsam gegessen wird – ein süßer Brauch, der Gemeinschaft und Dankbarkeit symbolisiert",
+                image: "images/23.jpg",
+                isReal: false,
+                explanation: "Kuchen für alle, aber leider nicht in dem Format. Wäre auch bei vielen Nachbarn etwas schwer zu managen"
+            },
+            {
+                title: "Tag 24 – Venezuela",
+                text: "In Venezuela fahren viele Menschen am frühen Weihnachtsmorgen mit Rollschuhen zur Kirche",
+                image: "images/24.jpg",
+                isReal: true,
+                explanation: "In Caracas werden Straßen sogar gesperrt, damit die Menschen zur 'Misa de Aguinaldo' rollen können. Good vibes incoming"
+            }
+
+        ];
+
+        /* ============================
+    QUIZ-LOGIK (REIHENFOLGE 1–24)
+    ============================ */
+
+
+        const startCard = document.getElementById("start-card");
+        const quizCard = document.getElementById("quiz-card");
+        const btnStart = document.getElementById("btn-start");
+        const endCard = document.getElementById("end-card");
+
+
+        let currentIndex = 0;
+        let answered = false;
+
+        const titleEl = document.getElementById("quiz-title");
+        const textEl = document.getElementById("quiz-text");
+        const imageEl = document.getElementById("quiz-image");
+        const resultBox = document.getElementById("result-box");
+        const explanationEl = document.getElementById("explanation");
+        const btnReal = document.getElementById("btn-real");
+        const btnFake = document.getElementById("btn-fake");
+        const btnNext = document.getElementById("btn-next");
+        const counterEl = document.getElementById("question-counter");
+
+        function loadQuestion() {
+            const quiz = QUIZZES[currentIndex];
+
+            titleEl.textContent = quiz.title;
+            textEl.textContent = quiz.text;
+
+            if (quiz.image && quiz.image.trim() !== "") {
+                imageEl.src = quiz.image;
+                imageEl.alt = quiz.title;
+                imageEl.style.display = "block";
+            } else {
+                imageEl.style.display = "none";
+            }
+
+            counterEl.textContent = `Tag ${currentIndex + 1}`;
+
+            resultBox.style.display = "none";
+            explanationEl.style.display = "none";
+            btnNext.style.display = "none";
+
+            answered = false;
+            btnReal.disabled = false;
+            btnFake.disabled = false;
+        }
+
+        function handleAnswer(guessIsReal) {
+            if (answered) return;
+            answered = true;
+
+            const quiz = QUIZZES[currentIndex];
+            const correct = (guessIsReal === quiz.isReal);
+
+            resultBox.style.display = "block";
+            explanationEl.style.display = "block";
+            btnNext.style.display = "inline-block";
+
+            if (correct) {
+                resultBox.className = "result correct";
+                resultBox.textContent = "Richtig! 🎉";
+            } else {
+                resultBox.className = "result wrong";
+                resultBox.textContent = "Falsch! 😅";
+            }
+
+            explanationEl.textContent = quiz.explanation;
+
+            btnReal.disabled = true;
+            btnFake.disabled = true;
+
+            // Wenn letzter Tag beantwortet wurde → keine „Nächster Tag“-Taste mehr
+            if (currentIndex === QUIZZES.length - 1) {
+                btnNext.textContent = "Weiter zur Endseite ➜";
+            } else {
+                btnNext.textContent = "Nächster Tag ➜";
+            }
+
+        }
+        btnStart.addEventListener("click", () => {
+            startCard.style.display = "none";    // Startseite ausblenden
+            quizCard.style.display = "block";    // Quiz einblenden
+            loadQuestion();                       // erste Frage laden
+        });
+
+        btnReal.addEventListener("click", () => handleAnswer(true));
+        btnFake.addEventListener("click", () => handleAnswer(false));
+
+        btnNext.addEventListener("click", () => {
+            // Wenn letzter Tag → Endseite zeigen
+            if (currentIndex === QUIZZES.length - 1) {
+                quizCard.style.display = "none";   // Quiz ausblenden
+                endCard.style.display = "block";   // Endseite anzeigen
+                return;                            // NICHT weiterladen!
+            }
+
+            // Normal: weiter zur nächsten Frage
+            currentIndex++;
+            loadQuestion();
+        });
+
+
+        // Start: Quiz beginnt erst nach Klick auf „Quiz starten“
+        // loadQuestion();
+
+
+    </script>
+
+</body>
+
+</html>
