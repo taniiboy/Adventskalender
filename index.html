@@ -10,10 +10,9 @@
 </head>
 
 <body>
-   <video autoplay muted loop playsinline id="bg-video">
-    <source src="snowfall.mp4" type="video/mp4">
-</video>
-
+    <video autoplay muted loop playsinline id="bg-video">
+        <source src="snowfall.mp4" type="video/mp4">
+    </video>
 
     <div class="container">
 
@@ -26,7 +25,7 @@
             <p>
                 Willkommen zu deinem diesjährigen Adventskalender! Jeden Tag siehst du eine ungewöhnliche oder witzige
                 Tradition aus aller Welt.
-                Jedoch sind nicht alle echte Traditionen sondern manche auch frei erfunden. Du musst jeden Tag
+                Jedoch sind nicht alle Traditionen echt,sondern manche auch frei erfunden. Du musst jeden Tag
                 entscheiden, ob du die Tradition für echt
                 oder erfunden hältst. Viel Spaß dabei
             </p>
@@ -70,6 +69,19 @@
 
         </div>
 
+        <!-- WARTESEITE FÜR DEN NÄCHSTEN TAG -->
+        <div class="card" id="wait-card" style="display:none; text-align:center;">
+            <h2>Das nächste Rätsel kommt bald 🎁</h2>
+            <p>Du hast das heutige Rätsel schon gemacht. Das nächste ist verfügbar in:</p>
+
+            <div id="countdown" class="countdown" style="font-size:2rem; margin:16px 0;"></div>
+
+            <p style="font-size:0.9rem; opacity:0.7;">
+                Schau morgen wieder vorbei 😊
+            </p>
+        </div>
+
+
         <!-- ENDSEITE -->
         <div class="card" id="end-card" style="display:none; text-align:center;">
             <h2>Frohe Weihnachten! 🎄✨</h2>
@@ -86,11 +98,12 @@
                 (Zum Neustart kannst du die Seite einfach aktualisieren.)
             </p>
         </div>
+    </div>
 
 
 
 
-       
+
 
     <!-- ============================= -->
     <!--          JAVASCRIPT          -->
@@ -205,7 +218,7 @@
             },
             {
                 title: "Tag 15 – Bolivien",
-                text: "In Boliven werden traditionell Bohnen an Weihnachten gegessen. Der Brauch besagt, dass dadurch böse Energie den Körper durch die ausgeschiedenen Gase verlassen",
+                text: "In Bolivien werden traditionell Bohnen an Weihnachten gegessen. Der Brauch besagt, dass dadurch böse Energie den Körper durch die ausgeschiedenen Gase verlassen",
                 image: "images/15.jpg",
                 isReal: false,
                 explanation: "Hihi verarscht. Jedes Böhnchen gibt ein Tönchen, aber nicht hier"
@@ -233,7 +246,7 @@
             },
             {
                 title: "Tag 19 – Ecuador",
-                text: "In Encuador bauen die Menschen gemeinsam eine Skulptur aus Müll um den Geist des Zusammenhalts zu feiern",
+                text: "In Ecuador bauen die Menschen gemeinsam eine Skulptur aus Müll um den Geist des Zusammenhalts zu feiern",
                 image: "images/19.jpg",
                 isReal: false,
                 explanation: "Auch wenn es ein sehr nachhaltiger Ansatz wäre, ist diese Tradition so nicht zu finden"
@@ -250,7 +263,7 @@
                 text: "In Schweden schauen viele Familien jedes Jahr um 15 Uhr die Weihnachtssendung mit Donald Duck",
                 image: "images/21.jpg",
                 isReal: true,
-                explanation: "‚Kalle Anka‘ ist seit den 1960ern ein Weihnachtskult in Schweden. Wahrscheinlich sowas wie bei uns ‚Diner for One‘  an Silvester"
+                explanation: "‚Kalle Anka‘ ist seit den 1960ern ein Weihnachtskult in Schweden. Wahrscheinlich sowas wie bei uns ‚Dinner for One‘  an Silvester"
             },
             {
                 title: "Tag 22 – Kroatien",
@@ -285,10 +298,106 @@
         const quizCard = document.getElementById("quiz-card");
         const btnStart = document.getElementById("btn-start");
         const endCard = document.getElementById("end-card");
+        const waitCard = document.getElementById("wait-card");
+        const countdownEl = document.getElementById("countdown");
 
+        // Advent startet am 1. Dezember des aktuellen Jahres
+        const today = new Date();
+        const startDate = new Date(today.getFullYear(), 11, 1); // 11 = Dezember (0-basiert)
+
+        // String-Datum für heute (YYYY-MM-DD)
+        const todayStr = today.toISOString().slice(0, 10);
+
+        // Keys für localStorage
+        const STORAGE_INDEX_KEY = "adventQuiz_lastIndex";
+        const STORAGE_DATE_KEY = "adventQuiz_lastDate";
+        const STORAGE_FINISHED_KEY = "adventQuiz_finished";
+
+
+        // wie viele Tage seit dem Start vergangen?
+        let daysSinceStart = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+        if (daysSinceStart < 0) daysSinceStart = 0;
+
+        // maximal freigeschalteter Index für heute
+        let maxIndexForToday = Math.min(daysSinceStart, QUIZZES.length - 1);
 
         let currentIndex = 0;
         let answered = false;
+        let countdownInterval = null;
+
+        function startCountdownToNextDay() {
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+
+            const now = new Date();
+            const nextDay = new Date(now);
+            nextDay.setDate(now.getDate() + 1);
+            nextDay.setHours(0, 0, 0, 0); // Mitternacht des nächsten Tages
+
+            function updateCountdown() {
+                const now = new Date();
+                const diff = nextDay - now;
+
+                if (diff <= 0) {
+                    countdownEl.textContent = "Das nächste Rätsel ist jetzt verfügbar! 🎉";
+                    clearInterval(countdownInterval);
+                    return;
+                }
+
+                const totalSeconds = Math.floor(diff / 1000);
+                const days = Math.floor(totalSeconds / (60 * 60 * 24));
+                const hours = Math.floor((totalSeconds % (60 * 60 * 24)) / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                const seconds = totalSeconds % 60;
+
+                const dd = String(days).padStart(2, "0");
+                const hh = String(hours).padStart(2, "0");
+                const mm = String(minutes).padStart(2, "0");
+                const ss = String(seconds).padStart(2, "0");
+
+                countdownEl.textContent = `${dd}:${hh}:${mm}:${ss}`;
+            }
+
+            updateCountdown();
+            countdownInterval = setInterval(updateCountdown, 1000);
+        }
+
+        function initState() {
+            const finished = localStorage.getItem(STORAGE_FINISHED_KEY) === "true";
+
+            // Wenn alle 24 Rätsel schon erledigt wurden → direkt Endseite
+            if (finished) {
+                startCard.style.display = "none";
+                quizCard.style.display = "none";
+                waitCard.style.display = "none";
+                endCard.style.display = "block";
+                return;
+            }
+
+            const lastIndexStr = localStorage.getItem(STORAGE_INDEX_KEY);
+            const lastDateStr = localStorage.getItem(STORAGE_DATE_KEY);
+
+            // Wenn heutiges Rätsel bereits gelöst wurde → Countdown anzeigen
+            if (lastIndexStr !== null &&
+                lastDateStr === todayStr &&
+                Number(lastIndexStr) >= maxIndexForToday) {
+
+                startCard.style.display = "none";
+                quizCard.style.display = "none";
+                endCard.style.display = "none";
+                waitCard.style.display = "block";
+                startCountdownToNextDay();
+            } else {
+                // Standard: Startseite zeigen
+                startCard.style.display = "block";
+                quizCard.style.display = "none";
+                waitCard.style.display = "none";
+                endCard.style.display = "none";
+            }
+        }
+
+
 
         const titleEl = document.getElementById("quiz-title");
         const textEl = document.getElementById("quiz-text");
@@ -348,45 +457,72 @@
 
             btnReal.disabled = true;
             btnFake.disabled = true;
+            // Fortschritt im Browser speichern
+            localStorage.setItem(STORAGE_INDEX_KEY, String(currentIndex));
+            localStorage.setItem(STORAGE_DATE_KEY, todayStr);
 
-            // Wenn letzter Tag beantwortet wurde → keine „Nächster Tag“-Taste mehr
+            // Wenn letztes Rätsel gelöst wurde, merken wir uns das dauerhaft
             if (currentIndex === QUIZZES.length - 1) {
+                localStorage.setItem(STORAGE_FINISHED_KEY, "true");
+            }
+
+            // Text des Weiter-Buttons je nach Situation
+            if (currentIndex === QUIZZES.length - 1) {
+                // letztes Rätsel überhaupt
                 btnNext.textContent = "Weiter zur Endseite ➜";
+            } else if (currentIndex === maxIndexForToday) {
+                // heutiges Rätsel, aber es gibt noch weitere für zukünftige Tage
+                btnNext.textContent = "Zum Countdown ➜";
             } else {
+                // (falls du später doch mehrere am Tag erlauben willst)
                 btnNext.textContent = "Nächster Tag ➜";
             }
 
+
         }
         btnStart.addEventListener("click", () => {
-            startCard.style.display = "none";    // Startseite ausblenden
-            quizCard.style.display = "block";    // Quiz einblenden
-            loadQuestion();                       // erste Frage laden
+            startCard.style.display = "none";
+            quizCard.style.display = "block";
+
+            // aktueller Index = Rätsel, das heute freigeschaltet ist
+            currentIndex = maxIndexForToday;
+            loadQuestion();
         });
+
 
         btnReal.addEventListener("click", () => handleAnswer(true));
         btnFake.addEventListener("click", () => handleAnswer(false));
 
         btnNext.addEventListener("click", () => {
-            // Wenn letzter Tag → Endseite zeigen
+            // Wenn letzter Tag insgesamt → Endseite
             if (currentIndex === QUIZZES.length - 1) {
-                quizCard.style.display = "none";   // Quiz ausblenden
-                endCard.style.display = "block";   // Endseite anzeigen
-                return;                            // NICHT weiterladen!
+                quizCard.style.display = "none";
+                endCard.style.display = "block";
+                return;
             }
 
-            // Normal: weiter zur nächsten Frage
+            // Wenn heutiges freigeschaltetes Rätsel beendet → zur Warte-Seite
+            if (currentIndex === maxIndexForToday) {
+                quizCard.style.display = "none";
+                waitCard.style.display = "block";
+                startCountdownToNextDay();
+                return;
+            }
+
+            // Falls man irgendwann doch mehrere freischaltet
             currentIndex++;
             loadQuestion();
         });
 
 
-        // Start: Quiz beginnt erst nach Klick auf „Quiz starten“
-        // loadQuestion();
+
+        // Initialen Zustand herstellen (ggf. Countdown / Endseite anzeigen)
+        initState();
+
 
 
     </script>
 
 </body>
-
 
 </html>
